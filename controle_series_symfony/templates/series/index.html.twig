@@ -1,0 +1,45 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Listagem de séries{% endblock %}
+
+{% block body %}
+{# {% for type, messages in app.flashes %}
+    {% for message in messages %}
+        <div class="alert alert-{{ type }}">{{ message }}</div>    
+    {% endfor %}
+{% endfor %} #}
+{# {% if successMessage is not empty %}
+    <div class="alert alert-success">{{ successMessage }}</div>
+{% endif %} #}
+
+{% if is_granted('ROLE_USER') %}
+    <a href="{{ path('app_series_form') }}" class="btn btn-dark mb-3">Adicionar</a>
+{% endif %}
+
+{# <a href="/series/create" class="btn btn-dark mb-3">Adicionar</a> #}
+
+<ul class="list-group">
+    {% for series in seriesList %}
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+            {% if is_granted('ROLE_USER') %}
+                <a href="{{ path('app_seasons', { series: series.id }) }}">
+			{% endif %}
+                {{ series.name }}
+            {% if is_granted('ROLE_USER') %}
+                </a>
+            {% endif %}
+
+            {% if is_granted('ROLE_USER') %}
+                <div class="d-flex">
+                    <a href="{{ path('app_edit_series_form', { series: series.id }) }}" class="btn btn-sm btn-primary me-2">E</a>
+                    {# <form method="post" action="/series/delete/{{ series.id }}"> #}
+                    <form method="post" action="{{ path('app_delete_series', { id: series.id }) }}">
+                        <input type="hidden" name="_method" value="DELETE">
+                        <button class="btn btn-sm btn-danger">X</button>
+                    </form>
+                </div>
+            {% endif %}
+        </li>
+    {% endfor %}
+</ul>
+{% endblock %}
