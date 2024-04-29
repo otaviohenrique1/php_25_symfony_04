@@ -10,11 +10,15 @@ Projeto do curso "Symfony Framework: e-mail, processamento assíncrono, uploads 
 ## Comandos
 
 composer dumpautoload
+
 composer install
+
 php -S localhost:8080
+
 php -S localhost:8080 -t public/
 
 npm install
+
 npm run dev
 
 php bin/console
@@ -32,6 +36,8 @@ php bin/console doctrine:query:sql "SELECT * FROM series"
 php bin/console debug:router
 
 php bin/console make:form -nome-
+
+php bin/console messenger:consume -vv
 
 ## Pacotes
 

@@ -23,6 +23,8 @@
 					<a href="{{ path('app_series') }}">Home</a>
 					<a href="{{ path('app_logout') }}">Sair</a>
 				</div>
+			{% else %}
+    		<a href="{{ path('app_login') }}">Entrar</a>
 			{% endif %}
 			
 		
