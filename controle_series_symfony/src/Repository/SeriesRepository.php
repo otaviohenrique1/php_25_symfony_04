@@ -2,7 +2,7 @@
 
 namespace App\Repository;
 
-use App\DTO\SeriesCreateFormInput;
+use App\DTO\SeriesCreateationInputDTO;
 use App\Entity\Series;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;

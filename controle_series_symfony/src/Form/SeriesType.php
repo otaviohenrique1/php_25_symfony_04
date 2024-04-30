@@ -2,9 +2,10 @@
 
 namespace App\Form;
 
-use App\DTO\SeriesCreateFormInput;
+use App\DTO\SeriesCreateationInputDTO;
 // use App\Entity\Series;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\NumberType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -18,6 +19,7 @@ class SeriesType extends AbstractType
             ->add('seriesName', options: ['label' => 'Nome:'])
             ->add('seasonsQuantity', NumberType::class, options: ['label' => 'Qtd temporadas:'])
             ->add('episodesPerSeason', NumberType::class, options: ['label' => 'Ep por temporada:'])
+            ->add('coverImage', FileType::class, ['label' => 'Imagem de capa:'])
             ->add('save', SubmitType::class, ['label' => $options['is_edit'] ? 'Editar' : 'Adicionar'])
             ->setMethod($options['is_edit'] ? 'PATCH' : 'POST')
         ;
@@ -27,7 +29,7 @@ class SeriesType extends AbstractType
     {
         $resolver->setDefaults([
             // 'data_class' => Series::class,
-            'data_class' => SeriesCreateFormInput::class,
+            'data_class' => SeriesCreateationInputDTO::class,
             'is_edit'=> false,
         ]);
         $resolver->setAllowedTypes('is_edit', 'bool');
