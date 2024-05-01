@@ -30,7 +30,8 @@ class SeriesType extends AbstractType
             ])
             // ->add('save', SubmitType::class, ['label' => $options['is_edit'] ? 'Editar' : 'Adicionar'])
             ->add('save', SubmitType::class, ['label' => 'Adicionar'])
-            ->setMethod($options['is_edit'] ? 'PATCH' : 'POST')
+            // ->setMethod($options['is_edit'] ? 'PATCH' : 'POST')
+            ->setMethod('POST')
         ;
     }
 
@@ -39,8 +40,8 @@ class SeriesType extends AbstractType
         $resolver->setDefaults([
             // 'data_class' => Series::class,
             'data_class' => SeriesCreateationInputDTO::class,
-            'is_edit'=> false,
+            // 'is_edit'=> false,
         ]);
-        $resolver->setAllowedTypes('is_edit', 'bool');
+        // $resolver->setAllowedTypes('is_edit', 'bool');
     }
 }

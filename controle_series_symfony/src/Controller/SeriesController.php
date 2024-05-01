@@ -124,7 +124,7 @@ class SeriesController extends AbstractController
     {
         $seriesForm = $this->createForm(SeriesEditType::class, $series, ['is_edit'=> true,]);
             
-        return $this->renderForm('series/form.html.twig', compact('seriesForm', 'series'));
+        return $this->renderForm('series/edit.html.twig', compact('seriesForm', 'series'));
         // return $this->render('series/form.html.twig', compact(var_name:'series'));
     }
 
@@ -135,7 +135,7 @@ class SeriesController extends AbstractController
         $seriesForm->handleRequest($request);
 
         if (! $seriesForm->isValid()) {
-            return $this->renderForm('series/form.html.twig', compact('seriesForm', 'series'));
+            return $this->renderForm('series/edit.html.twig', compact('seriesForm', 'series'));
         }
 
         // $series->setName($request->request->get(key: 'name'));
