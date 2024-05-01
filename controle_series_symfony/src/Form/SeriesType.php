@@ -28,7 +28,8 @@ class SeriesType extends AbstractType
                     new File(mimeTypes: 'image/*')
                 ]
             ])
-            ->add('save', SubmitType::class, ['label' => $options['is_edit'] ? 'Editar' : 'Adicionar'])
+            // ->add('save', SubmitType::class, ['label' => $options['is_edit'] ? 'Editar' : 'Adicionar'])
+            ->add('save', SubmitType::class, ['label' => 'Adicionar'])
             ->setMethod($options['is_edit'] ? 'PATCH' : 'POST')
         ;
     }

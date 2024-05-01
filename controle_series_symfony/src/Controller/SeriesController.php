@@ -6,6 +6,7 @@ use App\DTO\SeriesCreateationInputDTO;
 use App\Entity\Episode;
 use App\Entity\Season;
 use App\Entity\Series;
+use App\Form\SeriesEditType;
 use App\Form\SeriesType;
 use App\Message\SeriesWasCreated;
 use App\Message\SeriesWasDeleted;
@@ -121,7 +122,7 @@ class SeriesController extends AbstractController
     #[Route('/series/edit/{series}', name: 'app_edit_series_form', methods: ['GET'])]
     public function editSeriesForm(Series $series): Response
     {
-        $seriesForm = $this->createForm(SeriesType::class, $series, ['is_edit'=> true,]);
+        $seriesForm = $this->createForm(SeriesEditType::class, $series, ['is_edit'=> true,]);
             
         return $this->renderForm('series/form.html.twig', compact('seriesForm', 'series'));
         // return $this->render('series/form.html.twig', compact(var_name:'series'));
@@ -130,7 +131,7 @@ class SeriesController extends AbstractController
     #[Route('/series/edit/{series}', name: 'app_store_series_changes', methods: ['PATCH'])]
     public function storeSeriesChanges(Series $series, Request $request): Response
     {
-        $seriesForm = $this->createForm(SeriesType::class, $series, ['is_edit'=> true,]);
+        $seriesForm = $this->createForm(SeriesEditType::class, $series, ['is_edit'=> true,]);
         $seriesForm->handleRequest($request);
 
         if (! $seriesForm->isValid()) {
