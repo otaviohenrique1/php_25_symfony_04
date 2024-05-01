@@ -8,10 +8,12 @@ use App\Entity\Season;
 use App\Entity\Series;
 use App\Form\SeriesType;
 use App\Message\SeriesWasCreated;
+use App\Message\SeriesWasDeleted;
 use App\Repository\SeriesRepository;
 use Doctrine\ORM\EntityManagerInterface;
 // use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 // use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 // use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -21,6 +23,7 @@ use Symfony\Component\Messenger\MessageBusInterface;
 // use Symfony\Component\Mailer\MailerInterface;
 // use Symfony\Component\Mime\Email;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\String\Slugger\SluggerInterface;
 
 class SeriesController extends AbstractController
 {
@@ -28,7 +31,7 @@ class SeriesController extends AbstractController
         private SeriesRepository $seriesRepository,
         private EntityManagerInterface $entityManager,
         private MessageBusInterface $messenger,
-        // private MailerInterface $mailer,
+        private SluggerInterface $slugger,
     ) {
     }
 
@@ -68,60 +71,47 @@ class SeriesController extends AbstractController
         $seriesForm = $this
             ->createForm(SeriesType::class, $input)
             ->handleRequest($request);
+
         if (!$seriesForm->isValid()) {
             return $this->renderForm('series/form.html.twig', compact(var_name: 'seriesForm'));
         }
 
-        // $user = $this->getUser();
+        /** @var UploadedFile $uploadedCoverImage  */
+        $uploadedCoverImage = $seriesForm->get('coverImage')->getData();
 
-        $series = new Series($input->seriesName);
-        
-        // $email = (new TemplatedEmail())
-        //     ->from('sistema@example.com')
-        //     ->to($user->getUserIdentifier())
-        //     //->cc('cc@example.com')
-        //     //->bcc('bcc@example.com')
-        //     //->replyTo('fabien@example.com')
-        //     //->priority(Email::PRIORITY_HIGH)
-        //     ->subject('Nova série criada')
-        //     ->text("Série {$series->getName()} foi criada")
-        //     ->htmlTemplate('emails/series-created.html.twig')
-        //     ->context(compact('series'));
-        // $this->mailer->send($email);
-        
-        // $seriesName = $request->request->get(key: 'name');
-        // $series = new Series($seriesName);
-
-        // $request->getSession()->set('success', "Série \"{$seriesName}\" adicionada com sucesso");
-        
-        for ($i=1; $i <= $input->seasonsQuantity; $i++) { 
-            $season = new Season($i);
-            for ($j=1; $j <= $input->episodesPerSeason; $j++) { 
-                $season->addEpisode(new Episode($j));
-            }
-            $series->addSeason($season);
+        if ($uploadedCoverImage) {
+           $originalFilename = pathinfo($uploadedCoverImage->getClientOriginalName(), PATHINFO_FILENAME);
+           $safeFilename = $this->slugger->slug($originalFilename);
+           $newFilename = $safeFilename . '-' . uniqid() . '.' . $uploadedCoverImage->guessExtension();
+           $uploadedCoverImage->move(
+            $this->getParameter('cover_image_directory'),
+            $newFilename
+           );
+           $input->coverImage = $newFilename;
         }
+
+        $series = $this->seriesRepository->add($input);
 
         $this->messenger->dispatch(new SeriesWasCreated($series));
         
         $this->addFlash('success', "Série \"{$series->getName()}\" adicionada com sucesso");
 
-        $this->seriesRepository->add($series, flush: true);
         return new RedirectResponse(url: '/series');
     }
 
     #[Route(
-        '/series/delete/{id}',
+        '/series/delete/{series}',
         name: 'app_delete_series',
         methods: ['DELETE'],
-        requirements: ['id' => '[0-9]+']
+        // requirements: ['id' => '[0-9]+']
     )]
-    public function deleteSeries(int $id, Request $request): Response
+    public function deleteSeries(Series $series, Request $request): Response
     {
         // $id = $request->attributes->get(key:'id');
         // $series = $this->entityManager->getReference(Series::class, $id);
         // $this->seriesRepository->remove($series, flush: true);
-        $this->seriesRepository->removeById($id);
+        $this->seriesRepository->remove($series, true);
+        $this->messenger->dispatch(new SeriesWasDeleted($series));
         $this->addFlash('success', 'Série removida com sucesso');
         // $session = $request->getSession();
         // $session->set('success', 'Série removida com sucesso');

@@ -36,7 +36,8 @@ class Series
         // #[Assert\NotBlank]
         // #[Assert\Length(min: 5)]
         private string $name,
-        private ?string $coverImagePath,
+        #[ORM\Column(nullable: true)]
+        private ?string $coverImagePath = null,
     )
     {
         $this->seasons = new ArrayCollection();

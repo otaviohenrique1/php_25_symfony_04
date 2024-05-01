@@ -7,6 +7,7 @@ use App\Entity\Series;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 use Exception;
+use Psr\Log\LoggerInterface;
 
 /**
  * @extends ServiceEntityRepository<Series>
@@ -18,7 +19,12 @@ use Exception;
  */
 class SeriesRepository extends ServiceEntityRepository
 {
-    public function __construct(ManagerRegistry $registry)
+    public function __construct(
+        ManagerRegistry $registry,
+        private SeasonRepository $seasonRepository,
+        private EpisodeRepository $episodeRepository,
+        private LoggerInterface $logger
+    )
     {
         parent::__construct($registry, Series::class);
     }
@@ -42,12 +48,24 @@ class SeriesRepository extends ServiceEntityRepository
     // }
 
     
-    public function add(Series $entity, bool $flush = false): void {
-        $this->getEntityManager()->persist($entity);
+    public function add(SeriesCreateationInputDTO $input): Series {
+        $entityManager = $this->getEntityManager();
 
-        if ($flush) {
-            $this->getEntityManager()->flush();
+        $series = new Series($input->seriesName, $input->coverImage);
+        $entityManager->persist($series);
+        $entityManager->flush();
+
+        try {
+            $this->seasonRepository->addSeasonsQuantity($input->seasonsQuantity, $series->getId());
+            $seasons = $this->seasonRepository->findBy(['series' => $series]);
+            $this->episodeRepository->addEpisodesPerSeason($input->episodesPerSeason, $seasons);
+        } catch (Exception $e) {
+            $this->logger->error($e->getMessage());
+            $this->remove($series, true);
         }
+
+        return $series;
+
     }
    
 

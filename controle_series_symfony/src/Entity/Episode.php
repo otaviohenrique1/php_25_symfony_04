@@ -12,18 +12,18 @@ class Episode
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column]
+    #[ORM\Column(type: 'integer')]
     private int $id;
 
     #[ORM\ManyToOne(inversedBy: 'episodes')]
     #[ORM\JoinColumn(nullable: false)]
     private Season $season;
 
-    #[ORM\Column]
+    #[ORM\Column(type: 'boolean', options: ['default' => false])]
     private ?bool $watched = null;
 
     public function __construct(
-        #[ORM\Column(type: Types::SMALLINT)]
+        #[ORM\Column(type: 'smallint')]
         private int $number,
     ) {
     }
